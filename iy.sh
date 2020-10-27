@@ -1,16 +1,25 @@
 #!/bin/sh
 
+# > /dev/null redirects echo outputs away from screen
+
+##
 # make a repository
+##
 mkrepo()
 {
-# > /dev/null redirects echo outputs away from screen
+
 mkdir $1
 
 # TODO code for updating history
 }
 
 ##
+# 
+##
+
+
+##
 # main program
 ##
 
-$1 $2
+./iy-flags.sh $1 > /dev/null
