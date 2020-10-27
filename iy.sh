@@ -8,3 +8,9 @@ mkdir $1
 
 # TODO code for updating history
 }
+
+##
+# main program
+##
+
+$1 $2
