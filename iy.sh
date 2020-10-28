@@ -7,8 +7,16 @@
 ##
 initiy()
 {
-    touch ".iy.log"
-    echo "Repository created: $(date)" > .iy.log
+    if ! test -e ".iy.log"
+    then
+        touch ".iy.log"
+        echo "Repository created: $(date)" > .iy.log
+
+    else
+
+        echo "Repository \"$1\" already exists"
+
+    fi
 }
 
 ##
@@ -16,14 +24,14 @@ initiy()
 ##
 mkrepo()
 {
-    if ! ls -d $1
+    if ! test -d $1
     then
         mkdir $1
     fi
 
-    cd $1
-    initiy
-    cd ..
+    cd $1 > /dev/null
+    initiy $1
+    cd .. >/dev/null
 
     return 0
 }
