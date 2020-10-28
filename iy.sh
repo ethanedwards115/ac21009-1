@@ -7,8 +7,8 @@
 ##
 initiy()
 {
-    touch .iy
-    echo "Repository created: $(date)" > .iy
+    touch ".iy.log"
+    echo "Repository created: $(date)" > .iy.log
 }
 
 ##
@@ -16,12 +16,14 @@ initiy()
 ##
 mkrepo()
 {
+    if ! ls -d $1
+    then
+        mkdir $1
+    fi
 
-    mkdir $1
-
-    # TODO Make history file
-
+    cd $1
     initiy
+    cd ..
 
     return 0
 }
@@ -34,4 +36,4 @@ mkrepo()
 ##
 # main program
 ##
-$1 > /dev/null
+$@
