@@ -34,5 +34,4 @@ mkrepo()
 ##
 # main program
 ##
-
-./iy-flags.sh $1 > /dev/null
+$1 > /dev/null
