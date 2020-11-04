@@ -135,7 +135,7 @@ checkout()
     if ! [ -e "$repo/.iy.log" ]
     then
 
-        echo "errmsg"
+        echo "iy: \"$repo\" is not a repository"
 
     fi
 
@@ -156,7 +156,7 @@ checkout()
 
     mv "$repo/$file" "$location"
 
-    echo "$(date) | File $file checked out from $repo to $location" | tee -a .iy.log
+    echo "$(date) | File \"$file\" checked out from \"$repo\" to \"$location\"" | tee -a "$repo/.iy.log"
 
     return 0
 }
