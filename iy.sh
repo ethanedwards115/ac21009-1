@@ -3,35 +3,30 @@
 # > /dev/null redirects echo outputs away from screen
 
 ##
-# initialises history (.iy) file
-##
-initiy()
-{
-    if ! test -e ".iy.log"
-    then
-        touch ".iy.log"
-        echo "Repository created: $(date)." | tee -a .iy.log
-
-    else
-
-        echo "iy: repository \"$1\" already exists."
-
-    fi
-}
-
-##
 # make a repository
 ##
 mkrepo()
 {
+
     if ! test -d $1
     then
         mkdir $1
     fi
 
-    cd $1 > /dev/null 
-    initiy $1
-    cd .. > /dev/null
+    if ! test -e ".iy.log"
+    then
+        cd $1 > /dev/null
+
+        touch ".iy.log"
+        echo "$(date) | Repository created" | tee -a .iy.log
+
+        cd .. > /dev/null
+
+    else
+
+        echo "iy: repository \"$1\" already exists."
+        return 1
+    fi
 
     return 0
 }
@@ -42,27 +37,44 @@ mkrepo()
 add()
 {
 
-    h="Usage: iy add [-c] <filename> <repository>"
+    h="Usage: iy add [-c] <filename> <repository>    -c creates the file and then adds it to the repository"
+    m=""
+    newfile=""
+    for i in $@; do :; done; repo="$i"
+
+    if ! [ -e "$repo/.iy.log" ]
+    then
+
+        echo "iy \"$repo\" is not a repository."
+
+        return 1
+
+    fi
 
     while getopts ":hc:" opt; do
+
+        #echo "debug"
+
         case ${opt} in
 
-            "c" )
-                if ! test -e $OPTARG
-                then
-                    touch $OPTARG
-                    mv "$OPTARG" "$3/$OPTARG"
-                    return 0
-
-                else
-                    echo "iy: file \"$OPTARG\" already exists."
-
-                fi
-                ;;
-            
             "h" )
                 echo $h
                 return 0
+                ;;
+
+            "c" )
+
+                newfile="$OPTARG"
+
+                if ! [ -e $newfile ]
+                then
+
+                    touch $newfile
+
+                else
+                    echo "iy: file \"$OPTARG\" already exists in repository \"$3\"."
+
+                fi
                 ;;
 
             \? )
@@ -73,7 +85,7 @@ add()
                 ;;
 
             ":" )
-                echo "iy: -$OPTARG requires an argument.\n" 1>&2
+                echo "iy: -$OPTARG requires an argument.\n"
                 echo "\n$h"
                 return 0
                 ;;
@@ -84,15 +96,28 @@ add()
     if [ $# -lt 2 ]
     then
 
-        echo $h
+        echo "$h"
+        return 1
 
     fi
 
     if [ $# -eq 2 ]
     then
-        mv $1 $2/$1
+
+        newfile="$1"
 
     fi
+
+    mv "$newfile" "$repo/$newfile"
+
+    if [ -z "$m" ]
+    then
+
+        m="$(date) | File \"$newfile\" added to \"$repo\""
+        
+    fi
+
+    echo "$m" | tee -a "$repo/.iy.log"
 
     return 0
 }
@@ -100,9 +125,44 @@ add()
 ##
 # checkout a file from the repo
 ##
+checkout()
+{
+    h="Usage: iy checkout <file> <repository> [<location>]"
+    file="$1"
+    repo="$2"
+    location="$3"
 
+    if ! [ -e "$repo/.iy.log" ]
+    then
+
+        echo "errmsg"
+
+    fi
+
+    if ! [ -e "$repo/$file" ]
+    then
+
+        echo "iy: file \"$file\" not found in repository \"$repo\"." 
+        return 1
+
+    fi
+
+    if [ $# -eq 2 ]
+    then
+
+        location=$(pwd)
+
+    fi
+
+    mv "$repo/$file" "$location"
+
+    echo "$(date) | File $file checked out from $repo to $location" | tee -a .iy.log
+
+    return 0
+}
 
 ##
 # main program
 ##
+
 $@
