@@ -199,6 +199,11 @@ showrepo()
     return 0
 }
 
+help()
+{
+    ./iy-help.sh > /dev/null
+}
+
 ##
 # finds a file in the repository
 ##
