@@ -1,10 +1,11 @@
 #!/bin/sh
 
-# > /dev/null redirects echo outputs away from screen
+# > /dev/null redirects outputs away from screen
 
 ##
 # make a repository
 ##
+
 mkrepo()
 {
 
@@ -37,7 +38,7 @@ mkrepo()
 add()
 {
 
-    h="Usage: iy add [-c] <filename> <repository>    -c creates the file and then adds it to the repository"
+    h="Usage: iy add [-c] <filename> <repository>\n-c creates the file and then adds it to the repository"
     m=""
     newfile=""
     for i in $@; do :; done; repo="$i"
@@ -45,7 +46,7 @@ add()
     if ! [ -e "$repo/.iy.log" ]
     then
 
-        echo "iy \"$repo\" is not a repository."
+        echo "iy: \"$repo\" is not a repository."
 
         return 1
 
@@ -85,7 +86,7 @@ add()
                 ;;
 
             ":" )
-                echo "iy: -$OPTARG requires an argument.\n"
+                echo "iy: -$OPTARG requires an argument."
                 echo "\n$h"
                 return 0
                 ;;
@@ -135,7 +136,7 @@ checkout()
     if ! [ -e "$repo/.iy.log" ]
     then
 
-        echo "iy: \"$repo\" is not a repository"
+        echo "iy: \"$repo\" is not a repository."
 
     fi
 
@@ -151,6 +152,15 @@ checkout()
     then
 
         location=$(pwd)
+    
+    else 
+
+        if ! [ -d $location ]
+        then
+
+            echo "iy: \"$location\" is not a valid location."
+
+        fi
 
     fi
 
@@ -160,6 +170,38 @@ checkout()
 
     return 0
 }
+
+##
+# shows the contents of the repository
+##
+showrepo()
+{
+    h="Usage: iy showrepo <repository>"
+
+    if [ $# -gt 1 ]
+    then
+        echo "iy: showrepo expects 1 argument.\n"
+        echo $h
+
+        return 1
+    fi
+
+    if ! [ -e "$1/.iy.log" ]
+    then
+        echo "iy: \"$1\" is not a repository.\n"
+        echo $h
+
+        return 1
+    fi
+
+    find $1 ! -name ".*"
+
+    return 0
+}
+
+##
+# finds a file in the repository
+##
 
 ##
 # main program
