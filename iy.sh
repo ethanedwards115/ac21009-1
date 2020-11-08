@@ -120,6 +120,7 @@ add()
     fi
 
     echo "$m" | tee -a "$repo/.iy/iy.log"
+    backup $repo
 
     return 0
 }
