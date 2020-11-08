@@ -18,9 +18,15 @@ mkrepo()
     then
         cd $1 > /dev/null
 
-        touch ".iy.log"
-        echo "$(date) | Repository created" | tee -a .iy.log
+        mkdir ".iy"
+        cd ".iy"
 
+        touch "iy.log"
+        echo "$(date +"%d/%m/%Y %X") | Repository created" | tee -a iy.log
+
+        mkdir backups
+
+        cd .. > /dev/null
         cd .. > /dev/null
 
     else
@@ -43,7 +49,7 @@ add()
     newfile=""
     for i in $@; do :; done; repo="$i"
 
-    if ! [ -e "$repo/.iy.log" ]
+    if ! [ -e "$repo/.iy/iy.log" ]
     then
 
         echo "iy: \"$repo\" is not a repository."
@@ -114,11 +120,11 @@ add()
     if [ -z "$m" ]
     then
 
-        m="$(date) | File \"$newfile\" added to \"$repo\""
+        m="$(date +"%d/%m/%Y %X") | File \"$newfile\" added to \"$repo\""
         
     fi
 
-    echo "$m" | tee -a "$repo/.iy.log"
+    echo "$m" | tee -a "$repo/.iy/iy.log"
 
     return 0
 }
@@ -133,7 +139,7 @@ checkout()
     repo="$2"
     location="$3"
 
-    if ! [ -e "$repo/.iy.log" ]
+    if ! [ -e "$repo/.iy/iy.log" ]
     then
 
         echo "iy: \"$repo\" is not a repository."
@@ -166,7 +172,7 @@ checkout()
 
     mv "$repo/$file" "$location"
 
-    echo "$(date) | File \"$file\" checked out from \"$repo\" to \"$location\"" | tee -a "$repo/.iy.log"
+    echo "$(date +"%d/%m/%Y %X") | File \"$file\" checked out from \"$repo\" to \"$location\"" | tee -a "$repo/.iy/iy.log"
 
     return 0
 }
@@ -186,7 +192,7 @@ showrepo()
         return 1
     fi
 
-    if ! [ -e "$1/.iy.log" ]
+    if ! [ -e "$1/.iy/iy.log" ]
     then
         echo "iy: \"$1\" is not a repository.\n"
         echo $h
@@ -194,7 +200,7 @@ showrepo()
         return 1
     fi
 
-    find $1 ! -name ".*"
+    find $1 -not -wholename "$1/.*" -and -not -wholename "$1"
 
     return 0
 }
@@ -205,8 +211,59 @@ help()
 }
 
 ##
-# finds a file in the repository
+# backs up all the data in the repository
 ##
+backup()
+{
+    h="Usage: iy backup <repository>"
+    repo=$1
+
+    if [ $# -ne 1 ]
+    then
+        echo "iy: backup expects one argument."
+        return 1
+    fi
+
+    if ! [ -e "$repo/.iy/iy.log" ]
+    then
+        echo "iy: \"$repo\" is not a valid repository."
+        echo $h
+        return 1
+    fi
+
+    filename="backup.tar"
+
+    tar -cf "$filename" "$(find $repo -not -wholename "$repo/.*" -and -not -wholename "$repo")"
+
+    mv $filename "$repo/.iy/backups/"
+
+    return 0
+}
+
+##
+# reverts to the last backup of the repository
+##
+rollback()
+{
+    h="Usage: iy revert [repository]\nThe repository name is not required if you are in the main directory of the repository."
+
+    if [ -e "$1/.iy/backups/backup.tar" ]
+    then
+        tar -xf "$1/.iy/backups/backup.tar" -C "$1/.."
+        return 0
+    fi
+
+    if [ $# -gt 1 ]
+    then
+        echo "iy: revert expects at most 1 argument."
+        echo "$h"
+
+        return 1
+    fi
+
+    # if nothing happened up to this point, then something is wrong
+    echo "$h"
+}
 
 ##
 # main program
