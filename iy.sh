@@ -207,7 +207,7 @@ showrepo()
 
 help()
 {
-    ./iy-help.sh > /dev/null
+    ./iy-help.sh
 }
 
 ##
@@ -245,7 +245,7 @@ backup()
 ##
 rollback()
 {
-    h="Usage: iy revert [repository]\nThe repository name is not required if you are in the main directory of the repository."
+    h="Usage: iy revert [repository]"
 
     if [ -e "$1/.iy/backups/backup.tar" ]
     then
