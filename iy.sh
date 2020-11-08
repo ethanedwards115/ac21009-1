@@ -58,16 +58,11 @@ add()
 
     fi
 
-    while getopts ":hc:" opt; do
+    while getopts ":c:" opt; do
 
         #echo "debug"
 
         case ${opt} in
-
-            "h" )
-                echo $h
-                return 0
-                ;;
 
             "c" )
 
